@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Ultimate Video Downloader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Download videos from YouTube, Facebook, Instagram, TikTok and adult sites. MP4, MP3, HD formats available.">
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="ads">Your Banner Ad Here</div>
+  <div class="container">
+    <h1>Save The Video</h1>
+    <p class="subtitle">Download videos or audio from any website. MP4, MP3, Full HD supported.</p>
+    <input id="url" type="url" placeholder="Paste video URL here" required />
+    <select id="format">
+      <option value="mp4">Full HD Video (MP4)</option>
+      <option value="mp3">Audio Only (MP3)</option>
+    </select>
+    <button onclick="download()">Download</button>
+    <p id="status"></p>
+  </div>
+  <div class="ads">Popup/Interstitial Ad Placeholder</div>
+  <script>
+    async function download() {
+      const url = document.getElementById("url").value;
+      const format = document.getElementById("format").value;
+      const status = document.getElementById("status");
+      status.innerText = "Processing...";
+      const res = await fetch("/api/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, format }),
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const a = document.createElement("a");
+        a.href = window.URL.createObjectURL(blob);
+        a.download = format === "mp4" ? "video.mp4" : "audio.mp3";
+        a.click();
+        status.innerText = "Download started!";
+      } else {
+        const err = await res.json();
+        status.innerText = "Error: " + err.error;
+      }
+    }
+  </script>
+</body>
+</html>
